@@ -1,8 +1,9 @@
 # This script to compute values for the Maximum Power Transfer Theorem known as Jabobi's Law
-# Author: Martin Buehring
+# Author: Martin Buehring - KB4MG
 # April , 2022
 # v1 -excel interface - branched code
-# Dependencies:
+# v2 - improved code to commit
+# Program Dependencies:
 # 1) requires openpyxl package to be installed
 
 import openpyxl
@@ -31,7 +32,7 @@ def printBanner(pgname):
 def powerVal(i,v):
     return (i * v)
 
-# Excel Interface
+# Excel Interface - create sheet so we can graph it.
 def writeExcel():
     ws['A1'] = 'Load Resistance'
     ws['B1'] = 'Load Power'
@@ -51,7 +52,7 @@ def writeExcel():
 ###############################################
 ## MAIN PROGRAM
 ###############################################
-# Lists to keep
+# Lists to keep results of calculations
 loadResList = []
 loopCurList = []
 loopVoltsList = []
@@ -59,29 +60,29 @@ powerList = []
 
 
 if __name__ == '__main__':
-    printBanner('MPTT Calculation')
+    printBanner('MPTT Calculation and creaton of Excel file')
     #Establish objects for Excel interface
     wb = Workbook()
     ws = wb['Sheet']
 
-# Compute power for various load resistances
+# Compute power for various load resistances - we are rounding all floats to three decimal places
     while loadResistance < loadResistanceEndVal:
         loadResistance = loadResistance + loadResistanceStepVal
         print('* At Load = ',loadResistance)
-        loadResList.append(loadResistance)
+        loadResList.append(loadResistance)  #add it to the list of loads
         loopCurrent = sourceVoltage/(loadResistance + sourceResistance)  # add load plus source resistances
         loopCurList.append(round(loopCurrent,3))
         print(f' ','LoopCurrent:',end="")
         print('%.3f'%loopCurrent, 'A') # Format current to three decimal places
-        loadVoltage = loopCurrent * loadResistance
-        loopVoltsList.append(round(loadVoltage,3))
+        loadVoltage = loopCurrent * loadResistance  # Formula V = I*R
+        loopVoltsList.append(round(loadVoltage,3))  #add it to the list of voltages
         print(f' ','Load Voltage:',end="")
         print('%.3f'%loadVoltage, 'V')
-        loadPower = powerVal(loopCurrent, loadVoltage)
-       # powerList.append(loadPower)
-        powerList.append(round(loadPower,3))
+        loadPower = powerVal(loopCurrent, loadVoltage)  # Formula P= I**2 * R
+        powerList.append(round(loadPower,3))  #add to the power list
         print(f' ','Load Power:', end="")
         print('%.3f'%loadPower, 'W with Load Resistance:', loadResistance,'\n')
+        #Report the highest power value from all calculations
         if (maxPower < loadPower):
             maxPower = loadPower
 print('Computed Max Power is ', maxPower)
